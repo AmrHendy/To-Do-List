@@ -1,0 +1,475 @@
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="Content-Type" content="text/html">
+	<meta name="author" content="Hossam&&Amr">
+    <meta name="viewport" content="width=device-width">
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/t/dt/dt-1.10.11/datatables.min.css"/>
+    <script type="text/javascript" src="https://cdn.datatables.net/t/dt/dt-1.10.11/datatables.min.js"></script>
+<!--    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" />   
+	
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0 , minimum-scale=1.0"> -->
+    <link rel="shortcut icon" href="http://d15dxvojnvxp1x.cloudfront.net/assets/favicon.ico">
+	<link rel="icon" href="http://d15dxvojnvxp1x.cloudfront.net/assets/favicon.ico">
+	<script src="jquery-2.2.3.js"></script>
+   
+	<link rel="shortcut icon" href="http://d15dxvojnvxp1x.cloudfront.net/assets/favicon.ico">
+	<link rel="icon" href="http://d15dxvojnvxp1x.cloudfront.net/assets/favicon.ico">
+    <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
+	<link rel="stylesheet" href="http://code.jquery.com/ui/1.8.18/themes/base/jquery-ui.css" type="text/css" media="all" />
+
+	<!-- First get JQuery -->
+	<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js" type="text/javascript"></script>
+	<!-- Then get JQuery UI -->
+	<script src="http://code.jquery.com/ui/1.8.18/jquery-ui.min.js"></script>
+    <script src="jquery.tablesorter.js"></script>
+
+	<script>
+        var index=1;
+        function save(){
+                var allPage = document.all[0].innerHTML;
+                    $.ajax({
+                        type: 'POST',
+                        data: JSON.stringify({html: allPage}),
+                        contentType: 'application/json',
+                        url: '/tasks',
+                        success: function(data) {
+                            console.log(data + ':changes saved');
+                        },
+                        error: function(xhr, message,foo){
+                            console,log(message);
+                        }
+                        
+                    });
+            };
+        var x;
+        var y;
+		$(document).ready(function(){
+            $("#logout").click(function(){
+               $("#logoutForm").submit(); 
+            });
+            $("#tasks").tablesorter();
+            var selectedtask4 = [] ;
+            $("#deletebutt").hide();
+            
+            var flag = false ;
+            function add() {
+                
+				var table = document.getElementById("tasks");
+				var tabletbody = document.getElementById("tbodytasks");
+                var row1 = document.createElement("tr");
+				var checkcol = document.createElement("td");
+                var coulmn1 = document.createElement("td");
+				var coulmn2 = document.createElement("td");
+				var coulmn3 = document.createElement("td"); 
+				var newcol=document.createElement("td"); 
+				row1.setAttribute("class" , "inprogress");
+				var selectbutt = document.createElement("select");
+                $(".inprogress").show();
+			     $(".archived").hide();
+                $(".completed").hide();
+                choosebutt = document.createElement("input");
+                choosebutt.setAttribute("type" , "checkbox");
+                choosebutt.setAttribute("class" , "checkbutt");
+                $(selectbutt).change(function(){
+                        x = selectbutt.selectedIndex;
+                        y = selectbutt.options ;
+                        if(x == 1){   
+                                if (confirm("Are You Sure to delete this task ?") == true) {
+                                    selectbutt.parentNode.parentNode.remove();	
+                                    save();
+                                }
+                                    						
+                        }
+                    
+                        if(x==2){    
+                        dialog = $("#dialog-form").dialog({
+                                autoOpen: false,
+                                height: 350,
+				                width: 350,
+                                modal: true,
+                                buttons: {
+                                    "Edit": function(){
+                                    var coll1 = selectbutt.parentNode.parentNode.firstChild.nextElementSibling;
+                                    coll1.innerHTML = document.getElementById("name").value ;
+                                    var coll2 = selectbutt.parentNode.parentNode.firstChild.nextElementSibling.nextElementSibling;
+                                    coll2.innerHTML = document.getElementById("date").value ;    
+                                    var coll3 = selectbutt.parentNode.parentNode.firstChild.nextElementSibling.nextElementSibling.nextElementSibling;
+                                    coll3.innerHTML = document.getElementById("description").value ;
+                                        dialog.dialog( "close" );
+                                        save();
+                      
+                                    } ,
+                                    Cancel: function() {
+                                        dialog.dialog( "close" );
+                                    }
+                                },
+
+                                close: function() {
+                                    
+                                }
+                        });
+
+
+                        form = dialog.find( "form" ).on( "submit", function() {
+				            add();
+			             });
+   
+                            flag = true ;
+                            var nameOftask = selectbutt.parentNode.parentNode.firstChild.nextElementSibling.innerHTML ;
+                            var dateOftask = selectbutt.parentNode.parentNode.firstChild.nextElementSibling.nextElementSibling.innerHTML;
+                            var descrtion  = selectbutt.parentNode.parentNode.firstChild.nextElementSibling.nextElementSibling.nextElementSibling.innerHTML; ;
+                            $("#name").val(nameOftask);
+                            $("#date").val(dateOftask);
+                            $("#description").val(descrtion);
+                            dialog.dialog( "open" );
+                            save();
+                
+                        }                    
+                        if(x == 4){
+                            selectbutt.parentNode.parentNode.setAttribute("class" , "archived");
+                            var newOptions1 = "<option> Select <option> Delete <option> Edit <option> Mark as Completed" ;
+                            $(".archived").hide();
+                            $(selectbutt).html(newOptions1);
+                            save();
+                        }
+                        
+                        if(x == 3){
+                            selectbutt.parentNode.parentNode.setAttribute("class" , "completed");
+                            var newOptions = "<option> Select <option> Delete" ;
+                            if(countFlag == 0 || countFlag == 3){
+                                $(".completed").hide();
+                                
+                            }
+                            if(countFlag == 1){
+                                $(".completed").attr("style","text-decoration: line-through");            
+                            }
+                            $(selectbutt).html(newOptions);
+                            save();
+                        }
+                        selectbutt.options[0].selected = true ;
+                        
+                        $("table").trigger("update");      
+                });
+                
+var namefield = document.getElementById("name").value;
+                if(namefield == null || namefield== "" ||namefield== " " ||namefield== "  " ||namefield== "   " ||namefield== "    " ||namefield== "       " ||namefield== "        " ||namefield== "          " ||namefield== "           "){              
+                    
+                        alert("Name is required");    
+                    
+                    
+                }
+                else{
+                    var a = "<option>Select <option> Delete <option> Edit <option> Mark as Completed <option> Archive ";
+                    $(selectbutt).html(a);
+				    coulmn1.innerHTML =  document.getElementById("name").value;
+				    coulmn2.innerHTML =	document.getElementById("date").value;
+				    coulmn3.innerHTML =	document.getElementById("description").value;
+				    tabletbody.appendChild(row1);
+				    row1.appendChild(checkcol);
+                    row1.appendChild(coulmn1);
+				    row1.appendChild(coulmn2);
+				    row1.appendChild(coulmn3);
+				    newcol.appendChild(selectbutt);
+                    checkcol.appendChild(choosebutt);
+                    $(newcol).hide();
+                    row1.appendChild(newcol);
+                    dialog.dialog( "close" );
+                    save();
+                    
+                }
+            
+                
+                $(row1).mouseover(function(){
+                        $(newcol).show();
+                        $(row1).css("background-color", "gray");
+                });
+                $(row1).mouseleave(function(){
+                        $(newcol).hide();
+                        $(row1).css("background-color", "white");
+                });
+                                                $("table").trigger("update");
+
+                
+                
+                $(choosebutt).change(function (){
+                    var selectedtask2 = [];
+                    var flag2 = false ;              
+                    $("#deletebutt").hide();
+                    var allchoosebutt2 = $(".checkbutt");
+                    for(var i =0 ;i<selectedtask4.length; i++  ){
+                        selectedtask4.pop();
+                    }
+                    
+                    for(var i=0 ; i < allchoosebutt2.length ;i+=1){
+                        var check2 = allchoosebutt2[i].checked ;
+                        var element = allchoosebutt2[i].parentNode.parentNode ; 
+                        if(check2 == true){
+                            $("#deletebutt").show();
+                            $("#addtask").hide();    
+                            
+                            flag2 = true ;
+                            selectedtask2.push(element);
+                            
+                        } 
+                        else{
+                            selectedtask2 = jQuery.grep(selectedtask2, function(value) {
+                            return value != element;
+                                
+                            });
+                            
+                            
+                        }
+                    }
+                    if(flag2 == false){
+                        $("#deletebutt").hide();
+                        $("#addtask").show();
+                    }
+                    
+                    
+                    for(var i =0 ;i<selectedtask2.length ; ){
+                        
+                        selectedtask4.push(selectedtask2[i]);
+                        
+                        
+                        i++ ;
+                    }
+                    
+                        
+                });
+                
+                
+            };    
+
+                
+                $("#deletebutt").click(function (){
+                    var deleted = 0 ;
+                    var size = selectedtask4.length ;
+                    if (confirm("Are You Sure to delete Selected tasks ?") == true){
+                        for(var i = 0 ; i < size ; ){
+                            selectedtask4[i].remove();
+                            deleted ++ ;
+                            i++ ;
+                        }
+                        save();
+                    }
+                  
+                    
+                    else{
+                        
+                    }; 
+                           
+                    if(i == size ){
+                        $("#deletebutt").hide();
+                        $("#addtask").show();   
+                    }
+                
+                });   
+                
+                                                  
+				index++;    
+           
+            dialog = $("#dialog-form").dialog({
+				autoOpen: false,
+				height: 350,
+				width: 350,
+				modal: true,
+				buttons: {
+					"Add": add ,
+					Cancel: function() {
+						dialog.dialog( "close" );
+					}
+				},
+
+				close: function() {
+					
+				}
+			});
+                        
+
+			form = dialog.find( "form" ).on( "submit", function() {
+                    add();
+			}); 
+
+            
+			var countFlag = 0 ;
+            $("#addtask").click(function (){
+                dialog = $("#dialog-form").dialog({
+				autoOpen: false,
+				height: 350,
+				width: 350,
+				modal: true,
+				buttons: {
+					"Add": add ,
+					Cancel: function() {
+						dialog.dialog( "close" );
+					}
+				},
+
+				close: function() {
+					
+       
+				}
+			});
+                        
+
+			form = dialog.find( "form" ).on( "submit", function() {
+                    add();
+			});
+                dialog.dialog( "open" );
+            });
+			
+			 $("#progress").click(function() {
+                $(".inprogress").show();
+			     $(".archived").hide();
+                $(".completed").hide();
+                countFlag = 0 ;
+                 $(choosebutt).change();
+             });
+
+			 $("#all").click(function() {
+			     $(".inprogress").show();
+			     $(".completed").attr("style","text-decoration: line-through");
+                 $(".completed").show();
+			     $(".archived").hide();
+                 countFlag = 1;
+                 $(choosebutt).change();
+			 }); 
+			 
+            
+            $("#complete").click(function() {
+                $(".completed").removeAttr("style");
+                $(".inprogress").hide();
+                 $(".archived").hide();
+                 $(".completed").show();
+                countFlag = 2;
+                $(choosebutt).change();
+			 });
+            
+            $("#archived").click(function() {
+			     $(".inprogress").hide();
+                 $(".archived").show();
+                $(".completed").hide();
+                countFlag = 3;
+                $(choosebutt).change();
+			 });
+			
+            function isNear( $element, distance, event ) {
+
+                var left = $element.offset().left - distance,
+                        top = $element.offset().top - distance,
+                        right = left + $element.width() + ( 2 * distance ),
+                        bottom = top + $element.height() + ( 2 * distance ),
+                        x = event.pageX,
+                        y = event.pageY;
+
+                return ( x > left && x < right && y > top && y < bottom );
+
+            };
+            
+            $("body").mousemove(function(){
+                var inprogressArr = $(".inprogress") ;
+                    var completedArr = $(".completed") ;
+                    var archivedArr = $(".archived") ;
+                    $("#allbad").text(inprogressArr.length + completedArr.length) ;
+                    $("#cobad").text(completedArr.length) ;
+                    $("#inbad").text(inprogressArr.length) ;
+                    $("#arcbad").text(archivedArr.length) ; 
+            });
+            
+        });
+        
+	</script>
+
+</head>
+
+<body>
+<form id="logoutForm" action="/" method="get">
+<input id = "logoutSubmit" type="submit" style="display:none">
+</form>    
+
+
+<div style="width:100%; display:table;" id="wrapper" class="container">
+	<h1 align="center"> todoList</h1>
+
+	<div id = "left-corner" style="float:left; width:20%; margin-left:2%; margin-top:3%;" class="btn-group-vertical">
+        <h3 style="margin-left:15px"><small>Choose Categroies</small></h3>
+        <button id = "all" type="button" class = "btn btn-primary" style="width:60%;">
+			<span class="badge" id="allbad" style=" margin-right:2%;">  0 </span> All Tasks
+		</button>
+		<button id = "progress" type="button" class = "btn btn-primary" style="width:60%;">
+			<span class="badge" id="inbad" style=" margin-right:2%;"> 0 </span>In Progress Tasks
+		</button>
+		<button type="button" id ="complete" class = "btn btn-primary" style="width:60%;">
+			<span class="badge" id="cobad" style=" margin-right:2%;" > 0 </span> Completed Tasks
+		</button>
+		<button type="button" id = "archived" class = "btn btn-primary" style="width:60%;">
+			<span class="badge" id="arcbad" style=" margin-right:2%;"> 0 </span>Archived Tasks
+		</button>
+	</div>
+
+	<div id = "right-corner" style="float:right; width:80%;  ; padding:5px; " >
+        <div style="position: absolute;
+                    top: 0;
+                    right: 0%;">
+        <button  id= "logout" class="btn btn-info btn-lg" style="float:left"/>
+          <span class="glyphicon glyphicon-log-out"></span> Log out
+    
+    </div>
+		<table style="width:70% ;margin-left:20px; " border = "1" id="tasks" cellspacing="0" cellpadding="0" class="table table-striped table-bordered table-condensed tablesorter" >
+			<thead>
+			<tr>
+				<th style="width:2%;">
+                </th>    
+                <th id="Na" style="width:23%;">
+					Task Name <input style="margin-left:10px; " type="image" id = "sortbutt" src="sortName.png" width="20" height="20" >
+				</th>
+				<th style="width:20%">
+                    Date <input style="margin-left:10px; " type="image" id = "sortbutt" src="sortName.png" width="20" height="20" > 
+				</th>
+				<th style="width:30%" >
+					<b> Description </b>
+				</th >
+                <th id="hiddencol" style="width:25% " >
+				    Options
+                </th>
+			</tr>
+			</thead>
+            <tbody id="tbodytasks">
+            </tbody>
+		</table>
+		
+		<button style = "margin-left:20px; margin-top : 20px" title = "Add Task" type="button" id = "addtask" value="Saved" class="btn btn-success" >
+			Add Task
+		</button>
+        <button style = "margin-left:20px; margin-top : 20px" title = "Delete All Selected Tasks" type="button" id="deletebutt" class="btn btn-success">
+            Delete All
+        </button>    
+		<div id="dialog-form" title="Create new Task" class="container">
+			<form name = "myform" role="form" id="myform">
+				<div class="form-group">
+                    <label for="text">Task Name:</label>
+                    <input type="text"  name="name" id="name" class="form-control" placeholder="Task Name" required>
+				</div>
+                <div class="form-group">
+                    <label for="date">Date:</label>
+                    <input type="date"  name="date" id="date" class="form-control" placeholder="Date">
+				</div>
+                <div class="form-group">
+                    <label for="text">Description:</label>
+                    <input type="text"  name="Description" id="description" class="form-control" placeholder="Description">
+				</div>
+                
+					<input type="submit" value="addtask" style="position:absolute; top:-1000px" class="form-control">
+			</form>
+		</div>
+	</div>
+</div>
+
+    
+    
+</body>
+</html>
